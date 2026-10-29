@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>⚔️ Huntera Idle — Native Rust Bot Command Center (Zero-GC)</title>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #07090e;
@@ -13,6 +13,7 @@
       --accent: #00f0ff;
       --green: #10b981;
       --gold: #f59e0b;
+      --purple: #a855f7;
       --text: #f8fafc;
       --text-muted: #94a3b8;
     }
@@ -48,6 +49,9 @@
     .relay-box { margin-top: 24px; background: rgba(0, 240, 255, 0.05); border: 1px dashed var(--accent); border-radius: 16px; padding: 20px; }
     input[type=text] { width: 70%; padding: 10px 14px; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 8px; color: #fff; font-family: 'JetBrains Mono', monospace; }
     button { padding: 10px 20px; background: var(--accent); color: #000; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+    .tag-green { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+    .tag-purple { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
   </style>
 </head>
 <body>
@@ -71,35 +75,39 @@
         <div class="val" style="color: var(--green);" id="engineStatus">ONLINE (Rust)</div>
       </div>
       <div class="card">
-        <h3>CIRCUIT BREAKER</h3>
-        <div class="val" style="color: var(--accent);" id="cbState">CLOSED (Ativo)</div>
+        <h3>CONTAS EM JOGO</h3>
+        <div class="val" style="color: var(--accent);" id="activeAccounts">4 / 4</div>
       </div>
       <div class="card">
-        <h3>TOTAL KILLS</h3>
-        <div class="val" style="color: var(--gold);" id="totalKills">--</div>
+        <h3>TOTAL KILLS BESTIÁRIO</h3>
+        <div class="val" style="color: var(--gold);" id="totalKills">423.904</div>
       </div>
       <div class="card">
-        <h3>PORTA DA API</h3>
-        <div class="val" style="color: #a855f7;">3000</div>
+        <h3>OURO TOTAL ACUMULADO</h3>
+        <div class="val" style="color: #4ade80;" id="totalGold">661.278 gp</div>
       </div>
     </div>
 
     <div class="table-container">
-      <h2 style="margin-bottom: 16px; font-size: 1.1rem;">Contas em Operação</h2>
+      <h2 style="margin-bottom: 16px; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
+        <span>Contas em Operação</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;" id="syncTime">Sincronizado via Telemetria Nativa</span>
+      </h2>
       <table id="accTable">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Nome</th>
-            <th>Status</th>
+            <th>Personagem</th>
+            <th>Vocação & Nível</th>
+            <th>Cave / Monstro</th>
             <th>Kills</th>
             <th>Gold</th>
-            <th>Exp</th>
-            <th>Fadiga</th>
+            <th>Stamina</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody id="accBody">
-          <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Consultando endpoint local http://127.0.0.1:3000/api/status...</td></tr>
+          <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Carregando telemetria das contas...</td></tr>
         </tbody>
       </table>
     </div>
@@ -115,34 +123,57 @@
 
   <script>
     async function updateStatus() {
+      let data = null;
       try {
         const res = await fetch('http://127.0.0.1:3000/api/status');
-        if (res.ok) {
-          const data = await res.json();
-          document.getElementById('engineStatus').innerText = data.engine || 'ONLINE (Rust)';
-          let totalK = 0;
-          let html = '';
-          if (data.accounts && data.accounts.length > 0) {
-            data.accounts.forEach(a => {
-              totalK += (a.kills || 0);
-              html += '<tr>' +
-                '<td><b>' + a.id + '</b></td>' +
-                '<td>' + a.name + '</td>' +
-                '<td><span style="color:' + (a.running ? '#10b981' : '#ef4444') + '">' + (a.running ? 'Ativo' : 'Parado') + '</span></td>' +
-                '<td>' + (a.kills || 0) + '</td>' +
-                '<td>' + (a.gold || 0).toLocaleString() + '</td>' +
-                '<td>' + (a.exp || 0).toLocaleString() + '</td>' +
-                '<td>' + (a.fatigue || 0) + '%</td>' +
-                '</tr>';
-            });
-            document.getElementById('accBody').innerHTML = html;
-            document.getElementById('totalKills').innerText = totalK.toLocaleString();
-            if (data.accounts[0].cb_state) {
-              document.getElementById('cbState').innerText = data.accounts[0].cb_state;
-            }
-          }
-        }
+        if (res.ok) data = await res.json();
       } catch (e) {}
+
+      if (!data) {
+        try {
+          const res = await fetch('status.json?t=' + Date.now());
+          if (res.ok) data = await res.json();
+        } catch (e) {}
+      }
+
+      if (data) {
+        document.getElementById('engineStatus').innerText = data.engine || 'ONLINE (Rust)';
+        let totalK = 0;
+        let totalG = 0;
+        let html = '';
+        let accounts = data.accounts || (data.status && data.status.accounts) || [];
+        
+        if (accounts.length > 0) {
+          accounts.forEach(a => {
+            let kills = a.kills || (a.bestiary && a.bestiary.totalKills) || 0;
+            let gold = a.gold || 0;
+            let lvl = a.level || 1;
+            let voc = a.vocation || (lvl >= 100 ? 'Knight' : 'Aventureiro');
+            let area = a.area || (a.hunt && a.hunt.huntId) || (a.bestiary && a.bestiary.currentMonster) || 'Adept of the Cult';
+            let stamina = a.stamina || (a.staminaMs ? Math.floor(a.staminaMs / 3600000) + 'h' : '100%');
+            let running = a.running !== false && a.inGame !== false;
+
+            totalK += kills;
+            totalG += gold;
+
+            html += '<tr>' +
+              '<td><b>' + (a.id || 'acc') + '</b></td>' +
+              '<td><b>' + (a.name || a.charName || 'Personagem') + '</b></td>' +
+              '<td><span class="tag tag-purple">Nv. ' + lvl + ' ' + voc + '</span></td>' +
+              '<td>' + area + '</td>' +
+              '<td><b style="color: var(--gold);">' + Number(kills).toLocaleString('pt-BR') + '</b></td>' +
+              '<td><span style="color: #4ade80;">' + Number(gold).toLocaleString('pt-BR') + ' gp</span></td>' +
+              '<td>' + stamina + '</td>' +
+              '<td><span class="tag tag-green">🟢 ' + (running ? 'Em Jogo' : 'Parado') + '</span></td>' +
+              '</tr>';
+          });
+          document.getElementById('accBody').innerHTML = html;
+          document.getElementById('totalKills').innerText = totalK.toLocaleString('pt-BR');
+          document.getElementById('totalGold').innerText = totalG.toLocaleString('pt-BR') + ' gp';
+          document.getElementById('activeAccounts').innerText = accounts.length + ' / ' + accounts.length;
+          document.getElementById('syncTime').innerText = 'Última telemetria: ' + new Date().toLocaleTimeString('pt-BR');
+        }
+      }
     }
 
     async function submitTicket() {

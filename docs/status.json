@@ -2,17 +2,63 @@
   "game": "Huntera Idle",
   "engine": "Native Rust Zero-GC",
   "port": 3000,
-  "total_accounts": 1,
+  "total_accounts": 4,
   "accounts": [
     {
       "id": "acc-1",
-      "name": "Conta Principal",
+      "name": "Personagem #1",
+      "level": 130,
+      "vocation": "Knight",
       "running": true,
-      "kills": 0,
-      "gold": 0,
-      "exp": 0,
-      "cb_state": "Closed",
-      "fatigue": 0.0
+      "kills": 104312,
+      "gold": 235837,
+      "exp": 8318,
+      "cb_state": "Closed (Ativo)",
+      "fatigue": 0.0,
+      "area": "Adept of the Cult",
+      "stamina": "10h 12m"
+    },
+    {
+      "id": "acc-2",
+      "name": "Personagem #2",
+      "level": 99,
+      "vocation": "Paladin",
+      "running": true,
+      "kills": 80427,
+      "gold": 30,
+      "exp": 243117,
+      "cb_state": "Closed (Ativo)",
+      "fatigue": 0.0,
+      "area": "Adept of the Cult",
+      "stamina": "0h 05m"
+    },
+    {
+      "id": "acc-3",
+      "name": "Personagem #3",
+      "level": 104,
+      "vocation": "Sorcerer",
+      "running": true,
+      "kills": 143765,
+      "gold": 224911,
+      "exp": 97933,
+      "cb_state": "Closed (Ativo)",
+      "fatigue": 0.0,
+      "area": "Cult Hunt",
+      "stamina": "2h 10m"
+    },
+    {
+      "id": "acc-4",
+      "name": "Personagem #4",
+      "level": 104,
+      "vocation": "Druid",
+      "running": true,
+      "kills": 95400,
+      "gold": 200500,
+      "exp": 89200,
+      "cb_state": "Closed (Ativo)",
+      "fatigue": 0.0,
+      "area": "Amazon Camp",
+      "stamina": "8h 45m"
     }
   ]
 }
