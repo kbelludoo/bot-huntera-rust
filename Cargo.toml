@@ -1,0 +1,35 @@
+[package]
+name = "bot-huntera-rust"
+version = "0.1.0"
+edition = "2021"
+description = "Huntera Native Rust Bot - Zero-GC High-Performance Game Bot"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+futures-util = "0.3"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+chrono = { version = "0.4", features = ["serde"] }
+sha2 = "0.10"
+hmac = "0.12"
+uuid = { version = "1", features = ["v4", "fast-rng"] }
+hex = "0.4"
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-native-roots"] }
+flate2 = "1.0"
+byteorder = "1.5"
+rand = "0.8"
+url = "2"
+axum = "0.7"
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors"] }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

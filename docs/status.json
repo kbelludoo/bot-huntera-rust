@@ -1,0 +1,18 @@
+{
+  "game": "Huntera Idle",
+  "engine": "Native Rust Zero-GC",
+  "port": 3000,
+  "total_accounts": 1,
+  "accounts": [
+    {
+      "id": "acc-1",
+      "name": "Conta Principal",
+      "running": true,
+      "kills": 0,
+      "gold": 0,
+      "exp": 0,
+      "cb_state": "Closed",
+      "fatigue": 0.0
+    }
+  ]
+}

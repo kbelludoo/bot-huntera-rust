@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚔️ Huntera Idle — Native Rust Bot Command Center (Zero-GC)</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090e;
+      --card-bg: rgba(15, 23, 42, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #00f0ff;
+      --green: #10b981;
+      --gold: #f59e0b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      background-image: radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 10%, rgba(168, 85, 247, 0.08) 0%, transparent 45%),
+                        linear-gradient(to bottom, #07090e, #0a0e1a);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh; padding: 24px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+      padding: 22px 28px; background: var(--card-bg); backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border); border-radius: 20px; margin-bottom: 24px;
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .logo-badge { font-size: 2.2rem; }
+    .header-title h1 { font-size: 1.5rem; font-weight: 800; }
+    .header-title p { font-size: 0.85rem; color: var(--text-muted); }
+    .badge-rust { background: rgba(0, 240, 255, 0.15); border: 1px solid var(--accent); color: var(--accent); padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 24px; }
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; }
+    .card h3 { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
+    .card .val { font-size: 1.8rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+    .table-container { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td { padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+    th { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; }
+    .relay-box { margin-top: 24px; background: rgba(0, 240, 255, 0.05); border: 1px dashed var(--accent); border-radius: 16px; padding: 20px; }
+    input[type=text] { width: 70%; padding: 10px 14px; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 8px; color: #fff; font-family: 'JetBrains Mono', monospace; }
+    button { padding: 10px 20px; background: var(--accent); color: #000; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="header-left">
+        <div class="logo-badge">⚔️</div>
+        <div class="header-title">
+          <h1>Huntera Idle — Bot Command Center</h1>
+          <p>Native Rust Zero-GC Engine &bull; Porta 3000 &bull; Latência Sub-ms</p>
+        </div>
+      </div>
+      <div>
+        <span class="badge-rust">⚡ ZERO-GC &bull; &lt; 10 MB RAM</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h3>STATUS DO MOTOR</h3>
+        <div class="val" style="color: var(--green);" id="engineStatus">ONLINE (Rust)</div>
+      </div>
+      <div class="card">
+        <h3>CIRCUIT BREAKER</h3>
+        <div class="val" style="color: var(--accent);" id="cbState">CLOSED (Ativo)</div>
+      </div>
+      <div class="card">
+        <h3>TOTAL KILLS</h3>
+        <div class="val" style="color: var(--gold);" id="totalKills">--</div>
+      </div>
+      <div class="card">
+        <h3>PORTA DA API</h3>
+        <div class="val" style="color: #a855f7;">3000</div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <h2 style="margin-bottom: 16px; font-size: 1.1rem;">Contas em Operação</h2>
+      <table id="accTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Status</th>
+            <th>Kills</th>
+            <th>Gold</th>
+            <th>Exp</th>
+            <th>Fadiga</th>
+          </tr>
+        </thead>
+        <tbody id="accBody">
+          <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Consultando endpoint local http://127.0.0.1:3000/api/status...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="relay-box">
+      <h3 style="margin-bottom: 10px;">🎟️ Captcha &amp; Turnstile Relay</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Cole o token Turnstile gerado no navegador/celular para abastecer o bot em tempo real via POST /api/ticket.</p>
+      <input type="text" id="ticketInput" placeholder="cf-chl-widget-token...">
+      <button onclick="submitTicket()">Enviar ao Bot</button>
+      <span id="ticketMsg" style="margin-left: 12px; font-weight: 600;"></span>
+    </div>
+  </div>
+
+  <script>
+    async function updateStatus() {
+      try {
+        const res = await fetch('http://127.0.0.1:3000/api/status');
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('engineStatus').innerText = data.engine || 'ONLINE (Rust)';
+          let totalK = 0;
+          let html = '';
+          if (data.accounts && data.accounts.length > 0) {
+            data.accounts.forEach(a => {
+              totalK += (a.kills || 0);
+              html += '<tr>' +
+                '<td><b>' + a.id + '</b></td>' +
+                '<td>' + a.name + '</td>' +
+                '<td><span style="color:' + (a.running ? '#10b981' : '#ef4444') + '">' + (a.running ? 'Ativo' : 'Parado') + '</span></td>' +
+                '<td>' + (a.kills || 0) + '</td>' +
+                '<td>' + (a.gold || 0).toLocaleString() + '</td>' +
+                '<td>' + (a.exp || 0).toLocaleString() + '</td>' +
+                '<td>' + (a.fatigue || 0) + '%</td>' +
+                '</tr>';
+            });
+            document.getElementById('accBody').innerHTML = html;
+            document.getElementById('totalKills').innerText = totalK.toLocaleString();
+            if (data.accounts[0].cb_state) {
+              document.getElementById('cbState').innerText = data.accounts[0].cb_state;
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function submitTicket() {
+      const t = document.getElementById('ticketInput').value.trim();
+      const msg = document.getElementById('ticketMsg');
+      if (!t) return;
+      try {
+        const res = await fetch('http://127.0.0.1:3000/api/ticket', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: t })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          msg.style.color = '#10b981';
+          msg.innerText = '✔ Ticket registrado com sucesso!';
+          document.getElementById('ticketInput').value = '';
+        } else {
+          msg.style.color = '#ef4444';
+          msg.innerText = '✖ Erro: ' + (data.error || 'Falha ao registrar');
+        }
+      } catch (e) {
+        msg.style.color = '#ef4444';
+        msg.innerText = '✖ Falha de conexão na porta 3000';
+      }
+    }
+
+    setInterval(updateStatus, 3000);
+    updateStatus();
+  </script>
+</body>
+</html>

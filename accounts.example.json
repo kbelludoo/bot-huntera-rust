@@ -1,0 +1,28 @@
+[
+  {
+    "id": "acc-1",
+    "name": "Personagem Principal",
+    "enabled": true,
+    "credentials": {
+      "token": "seu-token-de-sessao-ou-jwt",
+      "email": "user@exemplo.com",
+      "password": "senha-segura",
+      "origin": "https://huntera.net"
+    },
+    "settings": {
+      "hunt_target": "rotworms_valley",
+      "auto_hunt": true,
+      "auto_sell": true,
+      "auto_heal": true,
+      "auto_daily": true,
+      "auto_treino": true,
+      "auto_catch": true,
+      "auto_bless": true,
+      "auto_shadows": true,
+      "auto_transmute": true,
+      "focus_bestiary": true,
+      "exploit_weakness": true,
+      "vip_farmer": true
+    }
+  }
+]
