@@ -46,9 +46,6 @@
     table { width: 100%; border-collapse: collapse; text-align: left; }
     th, td { padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
     th { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; }
-    .relay-box { margin-top: 24px; background: rgba(0, 240, 255, 0.05); border: 1px dashed var(--accent); border-radius: 16px; padding: 20px; }
-    input[type=text] { width: 70%; padding: 10px 14px; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 8px; color: #fff; font-family: 'JetBrains Mono', monospace; }
-    button { padding: 10px 20px; background: var(--accent); color: #000; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; }
     .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
     .tag-green { background: rgba(16, 185, 129, 0.2); color: #10b981; }
     .tag-purple { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
@@ -112,13 +109,7 @@
       </table>
     </div>
 
-    <div class="relay-box">
-      <h3 style="margin-bottom: 10px;">🎟️ Captcha &amp; Turnstile Relay</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Cole o token Turnstile gerado no navegador/celular para abastecer o bot em tempo real via POST /api/ticket.</p>
-      <input type="text" id="ticketInput" placeholder="cf-chl-widget-token...">
-      <button onclick="submitTicket()">Enviar ao Bot</button>
-      <span id="ticketMsg" style="margin-left: 12px; font-weight: 600;"></span>
-    </div>
+    
   </div>
 
   <script>
@@ -176,26 +167,7 @@
       }
     }
 
-    async function submitTicket() {
-      const t = document.getElementById('ticketInput').value.trim();
-      const msg = document.getElementById('ticketMsg');
-      if (!t) return;
-      try {
-        const res = await fetch('http://127.0.0.1:3000/api/ticket', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: t })
-        });
-        const data = await res.json();
-        if (data.ok) {
-          msg.style.color = '#10b981';
-          msg.innerText = '✔ Ticket registrado com sucesso!';
-          document.getElementById('ticketInput').value = '';
-        } else {
-          msg.style.color = '#ef4444';
-          msg.innerText = '✖ Erro: ' + (data.error || 'Falha ao registrar');
-        }
-      } catch (e) {
+          } catch (e) {
         msg.style.color = '#ef4444';
         msg.innerText = '✖ Falha de conexão na porta 3000';
       }
